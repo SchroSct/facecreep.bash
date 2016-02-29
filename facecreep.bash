@@ -1,0 +1,56 @@
+#!/bin/bash
+email=""
+password=""
+target=""
+ua="Mozilla/5.0 (Linux; U; Android 4.0.3; ko-kr; LG-L160L Build/IML74K) AppleWebkit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
+site="https://m.facebook.com"
+directory=""
+if cd "$directory"
+then
+   echo "Inside $directory"
+else
+   echo "Could not enter $directory"
+   break
+fi
+callpage()
+{
+curl -s -L -b /tmp/facecreep.txt -A "$ua" "$1"
+}
+login(){
+curl -s -L -c /tmp/facecreep.txt -A "$ua" -d "email=${email}&pass=${password}" "https://m.facebook.com/login.php"
+}
+curld()
+{
+name=$(echo "$1" | sed -e 's/.*\///g' -e 's/\?.*//g')
+if [ -s "$name" ]
+then
+echo "File $name already exists"
+else
+curl -L -b /tmp/facecreep.txt -A "$ua" -o "${name}" "$1"
+fi
+}
+if [ -s /tmp/facecreep.txt ]
+then
+   echo "Already Logged In"
+else
+   login > /dev/null
+fi
+while true
+do
+   mapfile -t albums < <(callpage "${site}/${target}?v=photos" | sed -e 's/href="/\n/g'| grep -i "${target}/albums" | sed -e 's/".*//g')
+   mapfile -O 3 -t albums < <(callpage "${site}/${target}/photos?psm=default&startindex=3" | sed -e 's/href="/\n/g'| grep -i "${target}/albums" | sed -e 's/".*//g')
+   for album in "${albums[@]}"
+   do
+      echo "${album}"
+      mapfile -t photos < <(callpage "${site}${album}" | sed -e 's/"/\n/g' -e 's/\\//g' | grep "photo.php" | sed -e 's/.*\/photo.php/\/photo.php/g')
+      for photo in "${photos[@]}"
+      do
+          mapfile -t urls < <(callpage "${site}${photo}" | sed -e 's/"/\n/g' -e 's/\\//g' | grep ".jpg" | grep -v "quot" )
+          curld "${urls[0]}"
+      done
+   done
+   let random=$RANDOM%360
+   let sleepy=45+$random
+   echo "sleeping $sleepy on $(date)"
+   sleep $sleepy
+done
