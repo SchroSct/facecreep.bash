@@ -10,7 +10,7 @@ then
    echo "Inside $directory"
 else
    echo "Could not enter $directory"
-   break
+   exit 1
 fi
 callpage()
 {
