@@ -5,6 +5,7 @@ target=""
 ua="Mozilla/5.0 (Linux; U; Android 4.0.3; ko-kr; LG-L160L Build/IML74K) AppleWebkit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
 site="https://m.facebook.com"
 directory=""
+uname=""
 if cd "$directory"
 then
    echo "Inside $directory"
@@ -14,10 +15,10 @@ else
 fi
 callpage()
 {
-curl -s -L -b /tmp/facecreep.txt -A "$ua" "$1"
+curl -s -L -b facecreep.txt -A "$ua" "$1"
 }
 login(){
-curl -s -L -c /tmp/facecreep.txt -A "$ua" -d "email=${email}&pass=${password}" "https://m.facebook.com/login.php"
+curl -s -L -c facecreep.txt -A "$ua" -d "email=${email}&pass=${password}" "https://m.facebook.com/login.php"
 }
 curld()
 {
@@ -26,10 +27,10 @@ if [ -e "$name" ]
 then
 echo "File $name already exists"
 else
-curl -L -b /tmp/facecreep.txt -A "$ua" -o "${name}" "$1"
+curl -L -b facecreep.txt -A "$ua" -o "${name}" "$1"
 fi
 }
-if [ -s /tmp/facecreep.txt ]
+if callpage "$site" | grep -q -i "$uname"
 then
    echo "Already Logged In"
 else
