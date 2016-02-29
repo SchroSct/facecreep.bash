@@ -22,7 +22,7 @@ curl -s -L -c /tmp/facecreep.txt -A "$ua" -d "email=${email}&pass=${password}" "
 curld()
 {
 name=$(echo "$1" | sed -e 's/.*\///g' -e 's/\?.*//g')
-if [ -s "$name" ]
+if [ -e "$name" ]
 then
 echo "File $name already exists"
 else
