@@ -1,10 +1,10 @@
 #!/bin/bash
-email=""
-password=""
-target=""
+email=""   #Email for Login
+password=""   #Password for Login
+target=""   #Username of account you're downloading
 ua="Mozilla/5.0 (Linux; U; Android 4.0.3; ko-kr; LG-L160L Build/IML74K) AppleWebkit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
 site="https://m.facebook.com"
-directory=""
+directory="" #Directory to save the Pictures in.
 if cd "$directory"
 then
    echo "Inside $directory"
