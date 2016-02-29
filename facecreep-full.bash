@@ -1,10 +1,10 @@
 #!/bin/bash
-email=""   #Email for Login
-password=""   #Password for Login
-target=""   #Username of account you're downloading
+email=""
+password=""
+target=""
 ua="Mozilla/5.0 (Linux; U; Android 4.0.3; ko-kr; LG-L160L Build/IML74K) AppleWebkit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
 site="https://m.facebook.com"
-directory="" #Directory to save the Pictures in.
+directory=""
 if cd "$directory"
 then
    echo "Inside $directory"
@@ -29,13 +29,18 @@ else
 curl -L -b /tmp/facecreep.txt -A "$ua" -o "${name}" "$1"
 fi
 }
-login > /dev/null
+if [ -s /tmp/facecreep.txt ]
+then
+   echo "Already Logged In"
+else
+   login > /dev/null
+fi
 mapfile -t albums < <(callpage "${site}/${target}?v=photos" | sed -e 's/href="/\n/g'| grep -i "${target}/albums" | sed -e 's/".*//g')
 mapfile -O 3 -t albums < <(callpage "${site}/${target}/photos?psm=default&startindex=3" | sed -e 's/href="/\n/g'| grep -i "${target}/albums" | sed -e 's/".*//g')
 for album in "${albums[@]}"
 do
    echo "${album}"
-   mapfile -t photos < <(callpage "${site}${album}" | sed -e 's/href="/\n/g' | grep "photo.php" | sed -e 's/".*//g')
+   mapfile -t photos < <(callpage "${site}${album}" | sed -e 's/"/\n/g' -e 's/\\//g' | grep "photo.php" | sed -e 's/.*\/photo.php/\/photo.php/g')
    fphoto="${photos[0]}"
    mapfile -t urls < <(callpage "${site}${fphoto}" | sed -e 's/"/\n/g' -e 's/\\//g' | grep ".jpg" | grep -v "quot" )
    fname=$(echo "${urls[0]}" | sed -e 's/.*\///g' -e 's/\?.*//g')
