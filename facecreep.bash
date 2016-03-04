@@ -47,7 +47,7 @@ do
       for photo in "${photos[@]}"
       do
           mapfile -t urls < <(callpage "${site}${photo}" | sed -e 's/"/\n/g' -e 's/\\//g' | grep ".jpg" | grep -v "quot" )
-          curld "${urls[0]}"
+          curld "${urls[1]}"
       done
    done
    let random=$RANDOM%360
