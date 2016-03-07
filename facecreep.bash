@@ -1,5 +1,5 @@
 #!/bin/bash
-mapfile -t creds < <(cat facecreep.rc)
+mapfile -t creds < <(cat facecreep.rc.txt)
 email="${creds[0]}"
 password="${creds[1]}"
 target="${creds[2]}"
