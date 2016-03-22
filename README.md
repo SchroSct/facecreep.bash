@@ -3,7 +3,7 @@ Download Facebook Photo Albums via Curl
 
 # setup
 
-In a directory for facecreep add a facecreep.rc.txt and a facecreep.list.txt
+In a directory for facecreep add a facecreep.rc.txt and a facecreep.list.txt, edit facecreep scripts to have this path set in the variable directory=""
 
 facecreep.rc.txt requires the following in a newline delimited file:
 
