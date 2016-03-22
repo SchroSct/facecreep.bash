@@ -16,17 +16,17 @@ else
    exit 1
 fi
 mapfile -t creds < <(cat facecreep.rc.txt)
+mapfile -t targets < <(cat facecreep.list.txt)
 email="${creds[0]}"
 password="${creds[1]}"
-target="${creds[2]}"
-uname="${creds[3]}"
+uname="${creds[2]}"
 
 callpage()
 {
-curl -s -L -b facecreep.txt -A "$ua" "$1"
+curl -s -L -b "${directory}facecreep.txt" -A "$ua" "$1"
 }
 login(){
-curl -s -L -c facecreep.txt -A "$ua" -d "email=${email}&pass=${password}" "https://m.facebook.com/login.php"
+curl -s -L -c "${directory}facecreep.txt" -A "$ua" -d "email=${email}&pass=${password}" "https://m.facebook.com/login.php"
 }
 curld()
 {
@@ -35,9 +35,12 @@ if [ -e "$name" ]
 then
 echo "File $name already exists"
 else
-curl -L -b facecreep.txt -A "$ua" -o "${name}" "$1"
+curl -L -b "${directory}facecreep.txt" -A "$ua" -o "${name}" "$1"
 fi
 }
+
+creep()
+{
 if callpage "$site" | grep -q -i "$uname"
 then
    echo "Already Logged In"
@@ -49,6 +52,15 @@ mapfile -O 3 -t albums < <(callpage "${site}/${target}/photos?psm=default&starti
 for album in "${albums[@]}"
 do
    echo "${album}"
+   alnum=$(echo "${album}" | sed -e 's/.*albums\///g' -e 's/\///g')
+   if [[ -d "${alnum}" ]]
+   then
+      echo "${alnum} exists, crawling."
+   else
+      mkdir "${alnum}"
+   fi
+   if cd "${alnum}"
+   then
    mapfile -t photos < <(callpage "${site}${album}" | sed -e 's/"/\n/g' -e 's/\\//g' | grep "photo.php" | sed -e 's/.*\/photo.php/\/photo.php/g')
    fphoto="${photos[3]}"
    mapfile -t urls < <(callpage "${site}${fphoto}" | sed -e 's/"/\n/g' -e 's/\\//g' | grep ".jpg" | grep -v "quot" )
@@ -65,5 +77,39 @@ do
       curld "${urls[3]}"
       nphoto=$(callpage "${site}${nphoto}" | sed -e 's/"/\n/g' -e 's/\\//g' | grep -A 2 replace-state | tac | grep -m 1 photo.php)
    done
+   if cd "${directory}${target}"
+   then
+      echo "Back in ${target} main directory"
+   else
+      echo "Could not enter ${directory}${target}"
+      exit 1
+   fi
+fi
 done
+
+}
+for target in "${targets[@]}"
+do
+   if cd "$directory"
+   then
+      echo "Inside $directory"
+   else
+      echo "Could not enter $directory"
+      exit 1
+   fi
+
+   if [[ -d "${target}" ]]
+   then
+      echo "${target} exists, crawling."
+   else
+      mkdir "${target}"
+   fi
+   if cd "${target}"
+   then
+      creep "$target"
+   else
+      echo "FACECREEP FAILED"
+   fi
+done
+
 rm /tmp/facecreep.pid
