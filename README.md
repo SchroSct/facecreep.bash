@@ -13,4 +13,4 @@ facecreep.rc.txt requires the following in a newline delimited file:
 
 facecreep.list.txt requires a newline delimited list of facebook usernames.
 
-When facecreep(-full) is ran it cd's to the download directory, where the pictures + facebook cookie are stored, and loops through the user's albums until the end is reached.  facecreep-full tries to go through everything (simulating a 'next' click), and then closes.  facecreep goes through what may be the 'most recent' photos of each album and updates accordingly, looping every x seconds.
+When facecreep(-full) is ran it cd's to the download directory, where the pictures + facebook cookie are stored, and loops through the user's albums until the end is reached.  facecreep-full tries to go through everything (simulating a 'next' click), and then closes.  facecreep.bash was an attempt to loop through only the most recent photos, although this appears to do the opposite.
