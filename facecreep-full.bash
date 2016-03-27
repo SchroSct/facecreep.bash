@@ -62,10 +62,10 @@ do
    if cd "${alnum}"
    then
    mapfile -t photos < <(callpage "${site}${album}" | sed -e 's/"/\n/g' -e 's/\\//g' | grep "photo.php" | sed -e 's/.*\/photo.php/\/photo.php/g')
-   fphoto="${photos[3]}"
+   fphoto="${photos[1]}"
    mapfile -t urls < <(callpage "${site}${fphoto}" | sed -e 's/"/\n/g' -e 's/\\//g' | grep ".jpg" | grep -v "quot" )
-   fname=$(echo "${urls[3]}" | sed -e 's/.*\///g' -e 's/\?.*//g')
-   curld "${urls[3]}"
+   fname=$(echo "${urls[1]}" | sed -e 's/.*\///g' -e 's/\?.*//g')
+   curld "${urls[1]}"
    nphoto=$(callpage "${site}${fphoto}" | sed -e 's/"/\n/g' -e 's/\\//g' | grep -A 2 replace-state | tac | grep -m 1 photo.php)
    nname=""
    lname="${fname}"
@@ -73,8 +73,8 @@ do
    do
       mapfile -t urls < <(callpage "${site}${nphoto}" | sed -e 's/"/\n/g' -e 's/\\//g' | grep ".jpg" | grep -v "quot" )
       lname="${nname}"
-      nname=$(echo "${urls[3]}" | sed -e 's/.*\///g' -e 's/\?.*//g')
-      curld "${urls[3]}"
+      nname=$(echo "${urls[1]}" | sed -e 's/.*\///g' -e 's/\?.*//g')
+      curld "${urls[1]}"
       nphoto=$(callpage "${site}${nphoto}" | sed -e 's/"/\n/g' -e 's/\\//g' | grep -A 2 replace-state | tac | grep -m 1 photo.php)
    done
    if cd "${directory}${target}"
