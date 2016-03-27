@@ -51,8 +51,8 @@ if cd timeline
 then
    fphoto=$(callpage "${site}/${target}?v=photos" | sed -e 's/"/\n/g' -e 's/\\//g' | grep -A 10 -i "Photos of " | grep photo.php)
    mapfile -t urls < <(callpage "${site}${fphoto}" | sed -e 's/"/\n/g' -e 's/\\//g' | grep ".jpg" | grep -v "quot" )
-   fname=$(echo "${urls[3]}" | sed -e 's/.*\///g' -e 's/\?.*//g')
-   curld "${urls[3]}"
+   fname=$(echo "${urls[1]}" | sed -e 's/.*\///g' -e 's/\?.*//g')
+   curld "${urls[1]}"
    nphoto=$(callpage "${site}${fphoto}" | sed -e 's/"/\n/g' -e 's/\\//g' | grep -A 2 replace-state | tac | grep -m 1 photo.php)
    nname=""
    lname="${fname}"
@@ -60,8 +60,8 @@ then
    do
       mapfile -t urls < <(callpage "${site}${nphoto}" | sed -e 's/"/\n/g' -e 's/\\//g' | grep ".jpg" | grep -v "quot" )
       lname="${nname}"
-      nname=$(echo "${urls[3]}" | sed -e 's/.*\///g' -e 's/\?.*//g')
-      curld "${urls[3]}"
+      nname=$(echo "${urls[1]}" | sed -e 's/.*\///g' -e 's/\?.*//g')
+      curld "${urls[1]}"
       nphoto=$(callpage "${site}${nphoto}" | sed -e 's/"/\n/g' -e 's/\\//g' | grep -A 2 replace-state | tac | grep -m 1 photo.php)
    done
    if cd "${directory}${target}"
