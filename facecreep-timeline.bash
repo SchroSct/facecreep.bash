@@ -1,9 +1,10 @@
 #!/bin/bash
-if mkdir /tmp/facecreep-timeline.lock/
+lockdir="/tmp/facecreep-timeline.lock/"
+if mkdir "$lockdir"
 then
    echo "Lock created, running script"
 else
-   echo "Facecreep-timeline is already running, please wait until completion."
+   echo "Facecreep-timeline-laptop is already running, please wait until completion."
    exit 1
 fi
 ua="Mozilla/5.0 (Linux; U; Android 4.0.3; ko-kr; LG-L160L Build/IML74K) AppleWebkit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
@@ -11,6 +12,7 @@ site="https://m.facebook.com"
 if ! read directory < ~/.config/facecreep-timeline.rc
 then
    echo ".config/facecreep-timeline.rc not set"
+   rmdir "$lockdir"
    exit 1
 fi
    if cd "$directory"
@@ -18,6 +20,7 @@ fi
       echo "Inside $directory"
    else
       echo "Could not enter $directory"
+      rmdir "$lockdir"
       exit 1
    fi
 mapfile -t creds < <(cat facecreep.rc.txt)
@@ -49,6 +52,9 @@ name=$(echo "$1" | sed -e 's/.*\///g' -e 's/\?.*//g')
 curl -s -I -L -b "${directory}facecreep.txt" -A "$ua" "$1"
 }
 
+
+
+
 creep()
 {
 if callpage "$site" | grep -q -i "$uname"
@@ -72,14 +78,16 @@ then
    curld "${urls[${ord}]}"
    curld "${urls[${ord2}]}"
    nphoto=$(callpage "${site}${fphoto}" | sed -e 's/"/\n/g' -e 's/\\//g' | grep -A 2 replace-state | tac | grep -m 1 photo.php)
-   nfid=""
+   nfid=$(echo "$nphoto" | sed -e 's/.*fbid=//g' -e 's/\&.*//g')
    nname=""
    lname="${fname}"
+   lfid="$ffid"
    until [[ "${ffid}" = "${nfid}" ]]
    do
       mapfile -t urls < <(callpage "${site}${nphoto}" | sed -e 's/"/\n/g' -e 's/\\//g' | grep ".jpg" | grep -v "quot" )
       lname="${nname}"
       nname=$(echo "${urls[${ord}]}" | sed -e 's/.*\///g' -e 's/\?.*//g')
+      lfid="$nfid"
       nfid=$(echo "$nphoto" | sed -e 's/.*fbid=//g' -e 's/\&.*//g')
       curld "${urls[${ord}]}"
       curld "${urls[${ord2}]}"
@@ -90,6 +98,7 @@ then
       echo "Back in ${target} main directory"
    else
       echo "Could not enter ${directory}${target}"
+      rmdir "$lockdir"
       exit 1
    fi
 fi
@@ -102,6 +111,7 @@ do
       echo "Inside $directory"
    else
       echo "Could not enter $directory"
+      rmdir "$lockdir"
       exit 1
    fi
 
@@ -123,4 +133,4 @@ do
       echo "FACECREEP FAILED"
    fi
 done
-rmdir /tmp/facecreep-timeline.lock/
+rmdir "$lockdir"
