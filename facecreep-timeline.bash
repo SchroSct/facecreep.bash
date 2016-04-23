@@ -68,9 +68,9 @@ then
    fphoto=$(callpage "${site}/${target}/photos" | sed -e 's/"/\n/g' -e 's/\\//g' | grep -A 10 -i "Photos of " | grep photo.php)
    ffid=$(echo "$fphoto" | sed -e 's/.*fbid=//g' -e 's/\&.*//g')
    mapfile -t urls < <(callpage "${site}${fphoto}" | sed -e 's/"/\n/g' -e 's/\\//g' | grep ".jpg" | grep -v "quot" )
-   fname=$(echo "${urls[3]}" | sed -e 's/.*\///g' -e 's/\?.*//g')
-   curld "${urls[3]}"
-   curld "${urls[4]}"
+   fname=$(echo "${urls[${ord}]}" | sed -e 's/.*\///g' -e 's/\?.*//g')
+   curld "${urls[${ord}]}"
+   curld "${urls[${ord2}]}"
    nphoto=$(callpage "${site}${fphoto}" | sed -e 's/"/\n/g' -e 's/\\//g' | grep -A 2 replace-state | tac | grep -m 1 photo.php)
    nfid=""
    nname=""
@@ -79,10 +79,10 @@ then
    do
       mapfile -t urls < <(callpage "${site}${nphoto}" | sed -e 's/"/\n/g' -e 's/\\//g' | grep ".jpg" | grep -v "quot" )
       lname="${nname}"
-      nname=$(echo "${urls[3]}" | sed -e 's/.*\///g' -e 's/\?.*//g')
+      nname=$(echo "${urls[${ord}]}" | sed -e 's/.*\///g' -e 's/\?.*//g')
       nfid=$(echo "$nphoto" | sed -e 's/.*fbid=//g' -e 's/\&.*//g')
-      curld "${urls[3]}"
-      curld "${urls[4]}"
+      curld "${urls[${ord}]}"
+      curld "${urls[${ord2}]}"
       nphoto=$(callpage "${site}${nphoto}" | sed -e 's/"/\n/g' -e 's/\\//g' | grep -A 2 replace-state | tac | grep -m 1 photo.php)
    done
    if cd "${directory}${target}"
