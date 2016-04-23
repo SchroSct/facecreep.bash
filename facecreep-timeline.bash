@@ -113,14 +113,11 @@ do
    fi
    if cd "${target}"
    then
-      ord=1
-      ord2=2
-      creep "$target"
-      ord=2
-      ord2=3
-      creep "$target"
       ord=3
       ord2=4
+      creep "$target"
+      ord=4
+      ord2=5
       creep "$target"
    else
       echo "FACECREEP FAILED"
