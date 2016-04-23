@@ -1,7 +1,18 @@
 #!/bin/bash
+if mkdir /tmp/facecreep-timeline.lock/
+then
+   echo "Lock created, running script"
+else
+   echo "Facecreep-timeline is already running, please wait until completion."
+   exit 1
+fi
 ua="Mozilla/5.0 (Linux; U; Android 4.0.3; ko-kr; LG-L160L Build/IML74K) AppleWebkit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
 site="https://m.facebook.com"
-directory=""
+if ! read directory < ~/.config/facecreep-timeline.rc
+then
+   echo ".config/facecreep-timeline.rc not set"
+   exit 1
+fi
    if cd "$directory"
    then
       echo "Inside $directory"
@@ -27,10 +38,15 @@ curld()
 name=$(echo "$1" | sed -e 's/.*\///g' -e 's/\?.*//g')
 if [ -e "$name" ]
 then
-echo "File $name already exists"
+   echo "File $name already exists"
 else
-curl -L -b "${directory}facecreep.txt" -A "$ua" -o "${name}" "$1"
+   curl -L -b "${directory}facecreep.txt" -A "$ua" -o "${name}" "$1"
 fi
+}
+curlinf()
+{
+name=$(echo "$1" | sed -e 's/.*\///g' -e 's/\?.*//g')
+curl -s -I -L -b "${directory}facecreep.txt" -A "$ua" "$1"
 }
 
 creep()
@@ -49,19 +65,24 @@ else
 fi
 if cd timeline
 then
-   fphoto=$(callpage "${site}/${target}?v=photos" | sed -e 's/"/\n/g' -e 's/\\//g' | grep -A 10 -i "Photos of " | grep photo.php)
+   fphoto=$(callpage "${site}/${target}/photos" | sed -e 's/"/\n/g' -e 's/\\//g' | grep -A 10 -i "Photos of " | grep photo.php)
+   ffid=$(echo "$fphoto" | sed -e 's/.*fbid=//g' -e 's/\&.*//g')
    mapfile -t urls < <(callpage "${site}${fphoto}" | sed -e 's/"/\n/g' -e 's/\\//g' | grep ".jpg" | grep -v "quot" )
-   fname=$(echo "${urls[1]}" | sed -e 's/.*\///g' -e 's/\?.*//g')
-   curld "${urls[1]}"
+   fname=$(echo "${urls[3]}" | sed -e 's/.*\///g' -e 's/\?.*//g')
+   curld "${urls[3]}"
+   curld "${urls[4]}"
    nphoto=$(callpage "${site}${fphoto}" | sed -e 's/"/\n/g' -e 's/\\//g' | grep -A 2 replace-state | tac | grep -m 1 photo.php)
+   nfid=""
    nname=""
    lname="${fname}"
-   until [[ "${nname}" = "${fname}" ]] || [[ "${lname}" = "${nname}" ]]
+   until [[ "${ffid}" = "${nfid}" ]]
    do
       mapfile -t urls < <(callpage "${site}${nphoto}" | sed -e 's/"/\n/g' -e 's/\\//g' | grep ".jpg" | grep -v "quot" )
       lname="${nname}"
-      nname=$(echo "${urls[1]}" | sed -e 's/.*\///g' -e 's/\?.*//g')
-      curld "${urls[1]}"
+      nname=$(echo "${urls[3]}" | sed -e 's/.*\///g' -e 's/\?.*//g')
+      nfid=$(echo "$nphoto" | sed -e 's/.*fbid=//g' -e 's/\&.*//g')
+      curld "${urls[3]}"
+      curld "${urls[4]}"
       nphoto=$(callpage "${site}${nphoto}" | sed -e 's/"/\n/g' -e 's/\\//g' | grep -A 2 replace-state | tac | grep -m 1 photo.php)
    done
    if cd "${directory}${target}"
@@ -92,8 +113,17 @@ do
    fi
    if cd "${target}"
    then
+      ord=1
+      ord2=2
+      creep "$target"
+      ord=2
+      ord2=3
+      creep "$target"
+      ord=3
+      ord2=4
       creep "$target"
    else
       echo "FACECREEP FAILED"
    fi
 done
+rmdir /tmp/facecreep-timeline.lock/
